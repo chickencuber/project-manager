@@ -1,7 +1,7 @@
 use easy_menu::{Key, Menu, MenuOptions, Event};
 
 use core::str;
-use std::{collections::HashMap, env::{current_exe, args}, fs::{create_dir, read_dir, read_to_string, remove_dir_all, write}, os::unix::{fs::PermissionsExt, process::CommandExt}, process::Command};
+use std::{collections::HashMap, env::{args, current_exe}, fs::{create_dir, read_dir, read_to_string, remove_dir_all, write}, os::unix::{fs::PermissionsExt, process::CommandExt}, path::Path, process::Command};
 
 use serde::{Deserialize, Serialize};
 
@@ -11,6 +11,7 @@ use ron::{de::from_str, ser::to_string_pretty};
 struct _Data {
     pub editor: String,
     pub last: String,
+    pub libraries: String,
     pub categories: HashMap<String, Category>,
 }
 
@@ -87,7 +88,7 @@ fn render_projects(category: &String, data: &Data) -> String {
                 Key::ArrowUp => Event::Up,
                 Key::Char('k') => Event::Up,
                 Key::Escape => Event::Return("<..>".to_string()),
-                Key::Char('a') => Event::Return("<Fuzzy-Finder>".to_string()),
+                Key::Char('f') => Event::Return("<Fuzzy-Finder>".to_string()),
                 Key::Enter => {
                     if menu.options[menu.selected] == "<None>" {
                         return Event::None;
@@ -109,7 +110,7 @@ fn render_projects(category: &String, data: &Data) -> String {
                         return Event::None;
                     }
                 },
-                Key::Char('c') => Event::Return("<Create>".to_string()),
+                Key::Char('a') => Event::Return("<Create>".to_string()),
                 _ => Event::None,
             }
         },
@@ -200,7 +201,7 @@ fn create_project(data: &Data, category: &String) {
                     Key::ArrowUp => Event::Up,
                     Key::Char('k') => Event::Up,
                     Key::Escape => Event::Return("<Canceled>".to_string()),
-                    Key::Char('a') => {
+                    Key::Char('f') => {
                         return Event::Return("<Fuzzy-Finder>".to_string());
                     }
                     Key::Enter => {
@@ -245,6 +246,32 @@ fn main() {
             Command::new(data.data.editor).arg(data.data.last).exec();
             return;
         }
+        if v.to_lowercase() == "lib" {
+            if let Some(lib) = args.get(2) {
+                let mut path = Path::new(&data.data.libraries).to_path_buf();
+                path.push(lib);
+                if path.exists() {
+                    if path.is_dir() {
+                        if !Path::new("./libraries").exists() {
+                            create_dir("./libraries").unwrap(); 
+                        } 
+                        Command::new("cp")
+                            .arg("-r")
+                            .arg(path)
+                            .arg(format!("./libraries/{}", lib))
+                            .spawn().unwrap();
+                            return;    
+                    }
+                }
+                println!("not valid library");
+                return;
+            } else {
+                for c in Path::new(&data.data.libraries).read_dir().unwrap() {
+                    println!("{}", c.unwrap().file_name().to_str().unwrap());
+                }
+                return;
+            }
+        }
     }
     loop {
         let mut data = Data::read();
@@ -265,7 +292,7 @@ fn main() {
                     Key::ArrowUp => Event::Up,
                     Key::Char('k') => Event::Up,
                     Key::Escape => Event::Return("<Canceled>".to_string()),
-                    Key::Char('a') => {
+                    Key::Char('f') => {
                         return Event::Return("<Fuzzy-Finder>".to_string());
                     }
                     Key::Enter => {
