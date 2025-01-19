@@ -1,0 +1,9 @@
+[package]
+name = "project_manager"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ron = "=0.7.0"
+serde = { version = "1", features = ["derive"] }
+easy_menu = "0.1.2"
