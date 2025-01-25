@@ -257,10 +257,29 @@ fn main() {
                         } 
                         Command::new("cp")
                             .arg("-r")
-                            .arg(path)
+                            .arg(&path)
                             .arg(format!("./libraries/{}", lib))
                             .spawn().unwrap();
-                            return;    
+                        path.push("depends");
+                        if path.exists() {
+                            if path.is_file() {
+                                let str: Vec<String> = read_to_string(&path).unwrap().lines().map(String::from).collect();
+                                for lib in str {
+                                    if lib.trim() == "" {
+                                        continue;
+                                    }
+                                    let name = format!("./libraries/{}", lib);
+                                    let path =  Path::new(&name);
+                                    if path.exists() {
+                                        continue;
+                                    }
+                                    Command::new(current_exe().unwrap())
+                                        .arg("lib")
+                                        .arg(lib.trim()).spawn().unwrap();
+                                    }
+                            }
+                        }
+                        return;    
                     }
                 }
                 println!("not valid library");
