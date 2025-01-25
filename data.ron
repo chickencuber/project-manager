@@ -1,8 +1,14 @@
 (
-    editor: "nvim", //the editor(default nvim)
-    last: "", //the last project opened
-    libraries: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/libraries/", //you have to overwrite this
+    editor: "nvim",
+    last: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Rust/project_manager",
+    libraries: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/libraries/",
     categories: {
+        "Rust": (
+            supported_types: [
+                "Rust",
+            ],
+            parent_dir: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Rust/",
+        ),
         "Other": (
             supported_types: [
                 "Blank",
@@ -11,13 +17,7 @@
                 "C++",
                 "C3",
             ],
-            parent_dir: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Other Projects/", //you have to overwrite this
-        ),
-        "Rust": (
-            supported_types: [
-                "Rust",
-            ],
-            parent_dir: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Rust/", //you have to overwrite this
+            parent_dir: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Other Projects/",
         ),
     },
 )
