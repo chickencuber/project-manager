@@ -1,4 +1,4 @@
-use easy_menu::{Key, Menu, MenuOptions, Event};
+use easy_menu::{Event, Key, Menu, MenuOptions, Style};
 
 use core::str;
 use std::{collections::HashMap, env::{args, current_exe}, fs::{create_dir, read_dir, read_to_string, remove_dir_all, write}, os::unix::{fs::PermissionsExt, process::CommandExt}, path::Path, process::Command};
@@ -88,6 +88,7 @@ fn render_projects(category: &String, data: &Data) -> String {
                 Key::ArrowUp => Event::Up,
                 Key::Char('k') => Event::Up,
                 Key::Escape => Event::Return("<..>".to_string()),
+                Key::Char('q')=> Event::Return("<..>".to_string()),
                 Key::Char('f') => Event::Return("<Fuzzy-Finder>".to_string()),
                 Key::Enter => {
                     if menu.options[menu.selected] == "<None>" {
@@ -114,6 +115,7 @@ fn render_projects(category: &String, data: &Data) -> String {
                 _ => Event::None,
             }
         },
+        style_selected: Style::new().on_color256(0),
         ..Default::default()
     });
     let mut d = menu.run();
@@ -193,7 +195,9 @@ fn get_types(data: &Data, category: &String) -> Vec<String> {
 
 fn create_project(data: &Data, category: &String) {
     let types = get_types(data, category);
-    let mut menu = Menu::new(types.clone(), MenuOptions {
+    let mut out;
+    if types.len() != 1 {
+        let mut menu = Menu::new(types.clone(), MenuOptions {
             key: |key, _| {
                 match key {
                     Key::ArrowDown => Event::Down,
@@ -201,6 +205,7 @@ fn create_project(data: &Data, category: &String) {
                     Key::ArrowUp => Event::Up,
                     Key::Char('k') => Event::Up,
                     Key::Escape => Event::Return("<Canceled>".to_string()),
+                    Key::Char('q') => Event::Return("<Canceled>".to_string()),
                     Key::Char('f') => {
                         return Event::Return("<Fuzzy-Finder>".to_string());
                     }
@@ -210,20 +215,25 @@ fn create_project(data: &Data, category: &String) {
                     _ => Event::None,
                 }
             },
+            style_selected: Style::new().on_color256(0),
             ..Default::default()
         });
-    let mut out = menu.run();
-    if out == "<Canceled>" {
-        return;
-    }
-    if out == "<Fuzzy-Finder>" {
-        let o = fzf(types);
-        if let Some(v) = o {
-            out = v;
-        } else {
+        out = menu.run();
+        if out == "<Canceled>" {
             return;
         }
+        if out == "<Fuzzy-Finder>" {
+            let o = fzf(types);
+            if let Some(v) = o {
+                out = v;
+            } else {
+                return;
+            }
+        }
+    } else {
+        out = types[0].clone();
     }
+
     out.push_str(".sh");
     let mut path = data.data.categories[category].parent_dir.clone();
     path.push_str(&Menu::prompt("name"));
@@ -240,12 +250,14 @@ fn create_project(data: &Data, category: &String) {
 fn main() {
     let args: Vec<String> = args().collect();
     let val = args.get(1);
+    let mut find = false;
     if let Some(v) = val {
         let data = Data::read();
         if v.to_lowercase() == "last" || v.to_lowercase() == "-last" || v.to_lowercase() == "l" || v.to_lowercase() == "-l" {
             Command::new(data.data.editor).arg(data.data.last).exec();
             return;
         }
+        find = v.to_lowercase() == "f" || v.to_lowercase() == "-f" || v.to_lowercase() == "find" || v.to_lowercase() == "-find";
         if v.to_lowercase() == "lib" {
             if let Some(lib) = args.get(2) {
                 let mut path = Path::new(&data.data.libraries).to_path_buf();
@@ -311,6 +323,7 @@ fn main() {
                     Key::ArrowUp => Event::Up,
                     Key::Char('k') => Event::Up,
                     Key::Escape => Event::Return("<Canceled>".to_string()),
+                    Key::Char('q') => Event::Return("<Canceled>".to_string()),
                     Key::Char('f') => {
                         return Event::Return("<Fuzzy-Finder>".to_string());
                     }
@@ -323,9 +336,16 @@ fn main() {
                     _ => Event::None,
                 }
             },
+            style_selected: Style::new().on_color256(0),
             ..Default::default()
         });
-        let folder = menu.run();
+        let folder;
+        if find {
+            find = false;
+            folder = "<Fuzzy-Finder>".to_string();
+        } else {
+            folder=menu.run();
+        }
         if folder == "<Canceled>" {
             break;
         }

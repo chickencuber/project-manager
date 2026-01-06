@@ -1,23 +1,26 @@
 (
     editor: "nvim",
-    last: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Rust/project_manager",
+    last: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Other Projects/OS",
     libraries: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/libraries/",
     categories: {
-        "Rust": (
-            supported_types: [
-                "Rust",
-            ],
-            parent_dir: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Rust/",
-        ),
         "Other": (
             supported_types: [
                 "Blank",
                 "Web",
                 "C",
                 "C++",
+                "D",
+                "Odin",
                 "C3",
+                "Zig",
             ],
             parent_dir: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Other Projects/",
+        ),
+        "Rust": (
+            supported_types: [
+                "Rust",
+            ],
+            parent_dir: "/mnt/wwn-0x50014ee26a7ba406-part1/programming/Rust/",
         ),
     },
 )

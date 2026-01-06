@@ -1,3 +1,6 @@
 #!/bin/bash
-c3c init .
+
+zig init
+
 git init
+
