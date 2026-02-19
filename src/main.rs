@@ -1,7 +1,7 @@
 use easy_menu::{Event, Key, Menu, MenuOptions, Style};
 
 use core::str;
-use std::{collections::HashMap, env::{args, current_exe}, fs::{create_dir, read_dir, read_to_string, remove_dir_all, write}, os::unix::{fs::PermissionsExt, process::CommandExt}, path::Path, process::Command};
+use std::{collections::HashMap, env::{self, args, current_exe}, fs::{create_dir, read_dir, read_to_string, remove_dir_all, write}, os::unix::{fs::PermissionsExt, process::CommandExt}, path::{Path, PathBuf}, process::Command};
 
 use serde::{Deserialize, Serialize};
 
@@ -27,12 +27,21 @@ struct Data {
     pub project_types: Vec<String>,
 }
 
+
+fn xdg_config_home() -> PathBuf {
+    if let Ok(path) = std::env::var("XDG_CONFIG_HOME") {
+        return PathBuf::from(path);
+    } else {
+        let mut p = PathBuf::from(std::env::var("HOME").unwrap());
+        p.push(".config");
+        return p;
+    }
+}
+
 impl Data {
     fn read() -> Self {
-        let mut path = current_exe().unwrap();
-        path.pop();
-        path.pop();
-        path.pop();
+        let mut path = xdg_config_home();
+        path.push("prmn");
         path.push("data.ron");
         let mut folder = path.clone();
         let text = read_to_string(path).unwrap();
