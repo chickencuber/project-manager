@@ -74,10 +74,8 @@ impl Data {
         return to_string_pretty(&self.data, ron::ser::PrettyConfig::default()).unwrap()
     }
     fn write(&self) {
-        let mut path = current_exe().unwrap();
-        path.pop();
-        path.pop();
-        path.pop();
+        let mut path = xdg_config_home();
+        path.push("prmn");
         path.push("data.ron");
         write(path, self.pretty()).unwrap();
     }
@@ -250,10 +248,8 @@ fn create_project(data: &Data, category: &String) {
     let mut path = data.data.categories[category].parent_dir.clone();
     path.push_str(&Menu::prompt("name"));
     create_dir(&path).unwrap();
-    let mut sh = current_exe().unwrap();
-    sh.pop();
-    sh.pop();
-    sh.pop();
+    let mut sh = xdg_config_home();
+    sh.push("prmn");
     sh.push("types");
     sh.push(out);
     println!("{sh:?}");
