@@ -147,6 +147,7 @@ fn get_all_files(data: &Data, folder: Option<&String>) -> Vec<String> {
             }
             items.push(file.file_name().into_string().unwrap());
         } 
+        items.sort();
         return items;
     } else {
         let mut items = vec![];
@@ -163,6 +164,7 @@ fn get_all_files(data: &Data, folder: Option<&String>) -> Vec<String> {
                 items.push(path);
             }
         }
+        items.sort();
         return items;
     }
 }
@@ -190,6 +192,7 @@ fn get_types(data: &Data, category: &String) -> Vec<String> {
             f.push(v);
         }
     }
+    f.sort();
     return f;
 }
 
@@ -244,6 +247,7 @@ fn create_project(data: &Data, category: &String) {
     sh.pop();
     sh.push("types");
     sh.push(out);
+    println!("{sh:?}");
     Command::new(sh).current_dir(path).spawn().unwrap();
 }
 
@@ -314,6 +318,7 @@ fn main() {
             for k in data.data.categories.keys() {
                 items.push(k.to_string());
             } 
+            items.sort();
         }
         let mut menu = Menu::new(items, MenuOptions {
             key: |key, menu| {
